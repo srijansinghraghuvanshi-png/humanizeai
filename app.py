@@ -2,7 +2,7 @@ import re
 import requests
 import streamlit as st
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "openai/gpt-oss-20b"
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
