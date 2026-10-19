@@ -2,8 +2,23 @@ import re
 import requests
 import streamlit as st
 
-MODEL = "qwen2.5:3b"
-API_URL = "http://localhost:11434/api/chat"
+MODEL = "llama-3.3-70b-versatile"
+API_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+
+def call_model(messages, temperature: float) -> str:
+    """Call Groq using a key stored in Streamlit secrets."""
+    api_key = st.secrets.get("GROQ_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY is missing. Add it in Streamlit app Settings → Secrets.")
+    response = requests.post(
+        API_URL,
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={"model": MODEL, "messages": messages, "temperature": temperature},
+        timeout=120,
+    )
+    response.raise_for_status()
+    return response.json()["choices"][0]["message"]["content"]
 
 st.set_page_config(page_title="HumanizeAI", page_icon="✍️", layout="wide", initial_sidebar_state="expanded")
 
@@ -46,8 +61,8 @@ with st.sidebar:
     )
     st.divider()
     st.markdown("**🧠 Local AI engine**")
-    st.caption(f"Model · {MODEL}")
-    st.caption("🔒 Text is processed through your local Ollama server, not a hosted API.")
+    st.caption(f"Cloud model · {MODEL}")
+    st.caption("Text is sent to Groq to generate edits. Avoid pasting sensitive information.")
     st.divider()
     st.caption("Tip: Review names, facts, and citations before publishing.")
 
@@ -197,27 +212,13 @@ Text to edit:
 {source}
 </source_text>
 """
-    response = requests.post(
-        API_URL,
-        json={
-            "model": MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are a careful writing editor. Improve genuine writing quality, "
-                        "preserve meaning, and never fabricate evidence or citations."
-                    ),
-                },
-                {"role": "user", "content": prompt},
-            ],
-            "stream": False,
-            "options": {"temperature": 0.4},
-        },
-        timeout=300,
+    draft = call_model(
+        [
+            {"role": "system", "content": "You are a careful writing editor. Improve genuine writing quality, preserve meaning, and never fabricate evidence or citations."},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.4,
     )
-    response.raise_for_status()
-    draft = response.json()["message"]["content"]
 
     # Run a separate proofreading pass to catch clear grammar and punctuation errors.
     proofread_prompt = f"""Proofread the edited passage below. Correct clear grammar, subject-verb agreement, and punctuation errors. Preserve meaning, facts, technical terms, and structure. Do not add claims or explanations. Return the same required headings, Revised Text: and Editor Notes:, with the corrected passage and truthful notes.
@@ -227,24 +228,13 @@ Pay special attention to singular subjects such as “artificial intelligence”
 Passage to proofread:
 {draft}
 """
-    proofread_response = requests.post(
-        API_URL,
-        json={
-            "model": MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a meticulous proofreader. Correct clear language errors without changing meaning or inventing content.",
-                },
-                {"role": "user", "content": proofread_prompt},
-            ],
-            "stream": False,
-            "options": {"temperature": 0.1},
-        },
-        timeout=300,
+    final_text = call_model(
+        [
+            {"role": "system", "content": "You are a meticulous proofreader. Correct clear language errors without changing meaning or inventing content."},
+            {"role": "user", "content": proofread_prompt},
+        ],
+        temperature=0.1,
     )
-    proofread_response.raise_for_status()
-    final_text = proofread_response.json()["message"]["content"]
 
     # Deterministic safety net for two common, unambiguous errors in the revised passage.
     # Apply only to the Revised Text section so editor notes remain untouched.
@@ -289,12 +279,14 @@ if improve_clicked:
             with st.spinner("✍️ Reviewing your writing… The first response can take a little longer."):
                 st.session_state.humanize_result = improve_text(text, purpose, style)
             st.rerun()
+        except RuntimeError as exc:
+            st.error(str(exc))
         except requests.exceptions.ConnectionError:
-            st.error("Ollama is not running. Open Ollama and confirm qwen2.5:3b is installed.")
+            st.error("Could not connect to the AI service. Please retry in a moment.")
         except requests.exceptions.Timeout:
             st.error("The model took too long. Try a shorter passage or retry.")
         except requests.exceptions.HTTPError as exc:
-            st.error(f"Ollama returned an error: {exc}")
+            st.error(f"AI service returned an error: {exc}. Check that your API key and model access are valid.")
         except (KeyError, ValueError):
             st.error("The AI response could not be read. Please retry.")
 
