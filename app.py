@@ -133,32 +133,70 @@ with right:
             metric_a, metric_b = st.columns(2)
             metric_a.metric("Revised words", result_words)
             metric_b.metric("Revised characters", result_chars)
-            st.code(revised_text, language=None)
+
+            # A disabled text area wraps long lines and keeps the whole result readable.
+            st.text_area(
+                "Revised text",
+                value=revised_text,
+                height=190,
+                disabled=True,
+                label_visibility="collapsed",
+                key="display_revised_text",
+            )
+
+            # If the model claims no edits were needed while the output differs from
+            # the source, replace that contradictory note with a cautious factual note.
+            no_change_claim = any(
+                phrase in editor_notes.lower()
+                for phrase in (
+                    "no changes were necessary",
+                    "no changes needed",
+                    "no edits were needed",
+                    "passage is grammatically correct",
+                )
+            )
+            if no_change_claim and revised_text.strip() != text.strip():
+                editor_notes = (
+                    "- The revised passage differs from the original. Review it to confirm "
+                    "that the intended meaning is preserved.\n"
+                    "- Facts and citations were not independently verified."
+                )
+            elif not editor_notes.strip():
+                editor_notes = (
+                    "- Review the revised passage and confirm the intended meaning is preserved.\n"
+                    "- Facts and citations were not independently verified."
+                )
+            elif "facts and citations were not independently verified" not in editor_notes.lower():
+                editor_notes = editor_notes.rstrip() + "\n\n- Facts and citations were not independently verified."
+
+            # Embed the exact displayed text safely, rather than scraping another UI element.
+            import json
+            copy_payload = json.dumps(revised_text)
             components.html(
-                """<!doctype html>
+                f"""<!doctype html>
                 <html><body style="margin:0;background:transparent;font-family:system-ui,sans-serif">
                 <button id="copy-revised" style="width:100%;padding:10px 14px;border:1px solid #8b5cf6;border-radius:10px;background:rgba(139,92,246,.12);color:inherit;font-size:14px;font-weight:600;cursor:pointer">
                 📋 Copy revised text
                 </button>
                 <script>
-                const text = window.parent.document.querySelector('[data-testid="stCode"] code')?.innerText || "";
-                document.getElementById("copy-revised").addEventListener("click", async () => {
+                const revisedText = {copy_payload};
+                document.getElementById("copy-revised").addEventListener("click", async () => {{
                   const btn = document.getElementById("copy-revised");
-                  try {
-                    await navigator.clipboard.writeText(text);
+                  try {{
+                    await navigator.clipboard.writeText(revisedText);
                     btn.textContent = "✓ Copied to clipboard";
-                  } catch (e) {
-                    btn.textContent = "Use the copy icon on the text block";
-                  }
-                });
+                  }} catch (e) {{
+                    btn.textContent = "Copy unavailable — use the text area to select text";
+                  }}
+                }});
                 </script></body></html>""",
                 height=48,
             )
             st.markdown("#### 📝 Editor Notes")
-            st.info(editor_notes or "No editor notes were returned. Review factual claims independently.")
+            st.info(editor_notes)
             st.download_button(
                 "⬇️ Download result (.txt)",
-                data=f"Revised Text:\n{revised_text}\n\nEditor Notes:\n{editor_notes}",
+                data=f"Revised Text:\\n{revised_text}\\n\\nEditor Notes:\\n{editor_notes}",
                 file_name="humanizeai_result.txt",
                 mime="text/plain",
                 use_container_width=True,
