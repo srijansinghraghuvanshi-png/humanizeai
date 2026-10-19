@@ -32,7 +32,14 @@ st.markdown("""
 .eyebrow { text-transform:uppercase; letter-spacing:.16em; font-size:.72rem; font-weight:800; color:#a78bfa; margin-bottom:.6rem; }
 .hero h1 { font-size:clamp(2.2rem,4vw,3.25rem); margin:0; letter-spacing:-.055em; line-height:1.1; }
 .hero p { opacity:.82; font-size:1.03rem; max-width:680px; margin:.75rem 0 0; line-height:1.65; }
-.pill { display:inline-block; border:1px solid rgba(167,139,250,.30); background:rgba(139,92,246,.08); border-radius:999px; padding:.36rem .78rem; font-size:.76rem; margin:.9rem .35rem 0 0; }
+.pill { display:inline-block; border:1px solid rgba(167,139,250,.30); background:rgba(139,92,246,.08); border-radius:999px; padding:.42rem .82rem; font-size:.76rem; margin:.9rem .35rem 0 0; }
+.feature-strip { display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.25rem; }
+.mini-note { color:rgba(226,232,240,.72); font-size:.88rem; line-height:1.55; }
+.panel-heading { letter-spacing:-.025em; }
+[data-testid="stSidebar"] { border-right:1px solid rgba(139,92,246,.12); }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { line-height:1.55; }
+.stAlert { border-radius:14px; }
+@media(max-width:800px) { .hero { padding:1.35rem; border-radius:20px; } .hero:after { font-size:7rem; right:1%; top:0; } .block-container { padding-left:1rem; padding-right:1rem; } }
 .section-kicker { color:#a78bfa; font-size:.72rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.25rem; }
 [data-testid="stTextArea"] textarea { border-radius:16px; border:1px solid rgba(139,92,246,.25); line-height:1.65; font-size:1rem; padding:1rem; }
 [data-testid="stTextArea"] textarea:focus { border-color:#8b5cf6; box-shadow:0 0 0 1px #8b5cf6; }
@@ -48,7 +55,7 @@ hr { opacity:.2; }
 footer { visibility:hidden; }
 @media(max-width:800px) { .hero { padding:1.35rem; border-radius:20px; } .hero:after { font-size:7rem; right:1%; top:0; } .block-container { padding-left:1rem; padding-right:1rem; } }
 </style>
-<div class="hero"><div class="eyebrow">✦ Your personal writing studio</div><h1>✍️ HumanizeAI</h1><p>Turn rough drafts into clear, polished writing. Keep your meaning, improve your flow, and stay in control of every edit.</p><span class="pill">◈ Academic & research</span><span class="pill">✎ Blogs & everyday writing</span><span class="pill">● Private · runs locally</span></div>
+<div class="hero"><div class="eyebrow">✦ Your personal writing studio</div><h1>✍️ HumanizeAI</h1><p>Turn rough drafts into clear, polished writing. Keep your meaning, improve your flow, and stay in control of every edit.</p><span class="pill">◈ Academic & research</span><span class="pill">✎ Blogs & everyday writing</span><span class="pill">☁ Cloud-powered AI</span><span class="pill">✓ Meaning-first editing</span></div>
 """, unsafe_allow_html=True)
 
 with st.sidebar:
@@ -60,18 +67,19 @@ with st.sidebar:
         ["Natural and clear", "Professional", "Simple English", "Concise", "Friendly"],
     )
     st.divider()
-    st.markdown("**🧠 Local AI engine**")
+    st.markdown("**☁️ Cloud AI engine**")
     st.caption(f"Cloud model · {MODEL}")
-    st.caption("Text is sent to Groq to generate edits. Avoid pasting sensitive information.")
+    st.caption("Powered by Groq · Text is sent to the AI provider for editing. Avoid pasting sensitive information.")
     st.divider()
     st.caption("Tip: Review names, facts, and citations before publishing.")
 
 st.markdown('<div class="section-kicker">YOUR WORKSPACE</div>', unsafe_allow_html=True)
+st.markdown('<p class="mini-note">A focused space to refine your writing while keeping your original draft in view.</p>', unsafe_allow_html=True)
 left, right = st.columns([1, 1], gap="large")
 
 with left:
-    st.subheader("✍️  Your draft")
-    st.caption("Paste your writing below. Your original text stays in the editor.")
+    st.subheader("✍️ Your draft")
+    st.caption("Paste a draft to improve grammar, clarity, flow, and readability.")
     reset_clicked = st.button("↻ Clear / Reset", use_container_width=True)
     if reset_clicked:
         st.session_state["source_text_input"] = ""
@@ -91,8 +99,8 @@ with left:
     improve_clicked = st.button("✨ Improve my writing", type="primary", use_container_width=True)
 
 with right:
-    st.subheader("✨  Polished result")
-    st.caption("Your edited version, ready for review and copying.")
+    st.subheader("✨ Polished result")
+    st.caption("Review the suggestions before copying or downloading your result.")
     if "humanize_result" not in st.session_state:
         st.session_state.humanize_result = ""
     with st.container(border=True):
