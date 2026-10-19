@@ -196,7 +196,7 @@ with right:
             st.info(editor_notes)
             st.download_button(
                 "⬇️ Download result (.txt)",
-                data=f"Revised Text:\\n{revised_text}\\n\\nEditor Notes:\\n{editor_notes}",
+                data=f"Revised Text:\n{revised_text}\n\nEditor Notes:\n{editor_notes}",
                 file_name="humanizeai_result.txt",
                 mime="text/plain",
                 use_container_width=True,
