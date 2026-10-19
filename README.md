@@ -3,7 +3,7 @@
 An AI-powered writing assistant built with Python and Streamlit. HumanizeAI helps improve grammar, clarity, flow, and readability while aiming to preserve the author's meaning.
 
 <p align="left">
-  <a href="https://humanizeai-srijan-singh.streamlit.app/"><strong>🚀 Try the live app</strong></a>
+  <a href="https://humanizeai-srijan-singh-raghuvanshi.streamlit.app/"><strong>🚀 Try the live app</strong></a>
   ·
   <a href="https://github.com/srijansinghraghuvanshi-png/humanizeai"><strong>View source code</strong></a>
 </p>
@@ -27,7 +27,7 @@ An AI-powered writing assistant built with Python and Streamlit. HumanizeAI help
 
 ## Try it online
 
-1. Open the [HumanizeAI live app](https://humanizeai-srijan-singh.streamlit.app/).
+1. Open the [HumanizeAI live app](https://humanizeai-srijan-singh-raghuvanshi.streamlit.app/).
 2. Choose a writing goal and tone from the sidebar.
 3. Paste a draft into the left text area.
 4. Select **Improve my writing**.
