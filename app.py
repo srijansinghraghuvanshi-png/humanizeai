@@ -1,6 +1,7 @@
 import re
 import requests
 import streamlit as st
+import streamlit.components.v1 as components
 
 MODEL = "openai/gpt-oss-20b"
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -127,8 +128,32 @@ with right:
                 editor_notes = result_text[end + len(notes_marker):].strip()
 
             st.markdown("#### ✨ Revised Text")
-            st.caption("Use the copy icon on this text block to copy only the revised text.")
+            result_words = len(revised_text.split()) if revised_text.strip() else 0
+            result_chars = len(revised_text)
+            metric_a, metric_b = st.columns(2)
+            metric_a.metric("Revised words", result_words)
+            metric_b.metric("Revised characters", result_chars)
             st.code(revised_text, language=None)
+            components.html(
+                """<!doctype html>
+                <html><body style="margin:0;background:transparent;font-family:system-ui,sans-serif">
+                <button id="copy-revised" style="width:100%;padding:10px 14px;border:1px solid #8b5cf6;border-radius:10px;background:rgba(139,92,246,.12);color:inherit;font-size:14px;font-weight:600;cursor:pointer">
+                📋 Copy revised text
+                </button>
+                <script>
+                const text = window.parent.document.querySelector('[data-testid="stCode"] code')?.innerText || "";
+                document.getElementById("copy-revised").addEventListener("click", async () => {
+                  const btn = document.getElementById("copy-revised");
+                  try {
+                    await navigator.clipboard.writeText(text);
+                    btn.textContent = "✓ Copied to clipboard";
+                  } catch (e) {
+                    btn.textContent = "Use the copy icon on the text block";
+                  }
+                });
+                </script></body></html>""",
+                height=48,
+            )
             st.markdown("#### 📝 Editor Notes")
             st.info(editor_notes or "No editor notes were returned. Review factual claims independently.")
             st.download_button(
@@ -284,7 +309,7 @@ if improve_clicked:
         st.warning("Please paste some text first.")
     else:
         try:
-            with st.spinner("✍️ Reviewing your writing… The first response can take a little longer."):
+            with st.spinner("✍️ Improving grammar, clarity, and flow… This may take a little while."):
                 st.session_state.humanize_result = improve_text(text, purpose, style)
             st.rerun()
         except RuntimeError as exc:
