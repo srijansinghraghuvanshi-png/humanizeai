@@ -21,7 +21,7 @@ def call_model(messages, temperature: float) -> str:
     response.raise_for_status()
     return response.json()["choices"][0]["message"]["content"]
 
-st.set_page_config(page_title="HumanizeAI", page_icon="✍️", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="HumanizeAI | AI Writing Assistant by Srijan Singh Raghuvanshi", page_icon="✍️", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
 <style>
@@ -56,7 +56,7 @@ hr { opacity:.2; }
 footer { visibility:hidden; }
 @media(max-width:800px) { .hero { padding:1.35rem; border-radius:20px; } .hero:after { font-size:7rem; right:1%; top:0; } .block-container { padding-left:1rem; padding-right:1rem; } }
 </style>
-<div class="hero"><div class="eyebrow">✦ Your personal writing studio</div><h1>✍️ HumanizeAI</h1><p>Turn rough drafts into clear, polished writing. Keep your meaning, improve your flow, and stay in control of every edit.</p><span class="pill">◈ Academic & research</span><span class="pill">✎ Blogs & everyday writing</span><span class="pill">☁ Cloud-powered AI</span><span class="pill">✓ Meaning-first editing</span></div>
+<div class="hero"><div class="eyebrow">✦ Your personal writing studio</div><h1>✍️ HumanizeAI</h1><p>Turn rough drafts into clear, polished writing. Keep your meaning, improve your flow, and stay in control of every edit.</p><span class="pill">◈ Academic & research</span><span class="pill">✎ Blogs & everyday writing</span><span class="pill">☁ Cloud-powered AI</span><span class="pill">✓ Meaning-first editing</span><span class="pill">Built by Srijan Singh Raghuvanshi</span></div>
 """, unsafe_allow_html=True)
 
 with st.sidebar:
