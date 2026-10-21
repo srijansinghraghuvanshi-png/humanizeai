@@ -8,10 +8,9 @@ API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
 def call_model(messages, temperature: float) -> str:
-    """Call Groq using a key stored in Streamlit secrets."""
     api_key = st.secrets.get("GROQ_API_KEY", "")
     if not api_key:
-        raise RuntimeError("GROQ_API_KEY is missing. Add it in Streamlit app Settings → Secrets.")
+        raise RuntimeError("GROQ_API_KEY is missing. .")
     response = requests.post(
         API_URL,
         headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
@@ -60,7 +59,7 @@ footer { visibility:hidden; }
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.markdown("### ⚙️ Workspace settings")
+    st.markdown(" ⚙️ Workspace settings")
     st.caption("Tune the result to match your writing goal.")
     purpose = st.selectbox("Writing goal", ["Academic / Research", "Blog / General"])
     style = st.selectbox(
@@ -68,7 +67,7 @@ with st.sidebar:
         ["Natural and clear", "Professional", "Simple English", "Concise", "Friendly"],
     )
     st.divider()
-    st.markdown("**☁️ Cloud AI engine**")
+    st.markdown("☁️ Cloud AI engine**")
     st.caption(f"Cloud model · {MODEL}")
     st.caption("Powered by Groq · Text is sent to the AI provider for editing. Avoid pasting sensitive information.")
     st.divider()
@@ -127,7 +126,7 @@ with right:
                 revised_text = result_text[:end].strip()
                 editor_notes = result_text[end + len(notes_marker):].strip()
 
-            st.markdown("#### ✨ Revised Text")
+            st.markdown("✨ Revised Text")
             result_words = len(revised_text.split()) if revised_text.strip() else 0
             result_chars = len(revised_text)
             metric_a, metric_b = st.columns(2)
